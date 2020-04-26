@@ -1,0 +1,36 @@
+{
+  "name": "cribbage",
+  "version": "1.0.0",
+  "description": "More interactive version of cribbage.",
+  "main": "cribbage/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "John Daniels",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.19.0",
+    "html-webpack-plugin": "^4.2.0",
+    "immutability-helper": "^3.0.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-is": "^16.13.1",
+    "react-redux": "^7.2.0",
+    "redux": "^4.0.5",
+    "shuffle-array": "^1.0.1",
+    "styled-components": "^5.1.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "devDependencies": {
+    "eslint-plugin-jest": "^23.8.2",
+    "jest": "^25.4.0"
+  }
+}
