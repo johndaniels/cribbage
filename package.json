@@ -4,10 +4,13 @@
   "description": "More interactive version of cribbage.",
   "main": "cribbage/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "dev-server": "webpack-dev-server --config webpack.config.cjs",
+    "build": "webpack --config webpack.config.cjs"
   },
   "author": "John Daniels",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
@@ -27,7 +30,8 @@
     "styled-components": "^5.1.0",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.10.3",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "eslint-plugin-jest": "^23.8.2",

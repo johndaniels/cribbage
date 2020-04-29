@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { PHASE } from '../game';
-import { cutDeck } from '../actions'
-import update from 'immutability-helper';
 
 const CardDiv = styled.div`
     width: 100px;

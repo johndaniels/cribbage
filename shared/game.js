@@ -1,4 +1,4 @@
-import { fullDeck, shuffleDeck } from './cards';
+import { fullDeck, shuffleDeck } from './cards.js';
 import update from 'immutability-helper';
 
 export const PHASE = {
@@ -28,12 +28,13 @@ function removeCards(hand, cardIndices) {
     const removed = hand.filter((_, i) => cardIndices.includes(i));
     return [newHand, removed]
 }
+
 export function createGame() {
     return {
         playerNames: [null, null],
         playerReady: [false, false],
         dealer: 0,
-        phase: PHASE.LOBBY,
+        phase: PHASE.CUTTING_FOR_DEAL,
         cuttingState: {
             deck: shuffleDeck(fullDeck()),
             currentPlayer: 0,
@@ -49,10 +50,17 @@ export function createGame() {
 }
 
 export function markPlayerReady(game, player, playerName) {
-    return update(game, {
+    const newGame = update(game, {
         playerNames: setForPlayer(player, playerName),
         playerReady: setForPlayer(player, true),
-    })
+    });
+    if (newGame.playerReady[0] && newGame.playerReady[1]) {
+        return update(newGame, {
+            phase: { $set: PHASE.CUTTING_FOR_DEAL },
+        })
+    } else {
+        return newGame;
+    }
 }
 
 export function cutForDeal(game, position) {

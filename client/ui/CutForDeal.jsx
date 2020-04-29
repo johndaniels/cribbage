@@ -8,11 +8,11 @@ export function CutForDeal({cuttingState, cutForDeal, resetCutting, startLayAway
         <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} />
         <div>
             <p>Player 1 Card:</p>
-            {cuttingState.cutCards[0] ? <Card card={cuttingState.cutCards[0]} /> : null}
+            {cuttingState.cutCards[0] ? <Card card={cuttingState.cutCards[0]} visible={true}/> : null}
         </div>
         <div>
             <p>Player 2 Card:</p>
-            {cuttingState.cutCards[1] ? <Card card={cuttingState.cutCards[1]} /> : null}
+            {cuttingState.cutCards[1] ? <Card card={cuttingState.cutCards[1]} visible={true} /> : null}
         </div>
         {
             true || cuttingState.cutCards[0] && cuttingState.cutCards[1] ? 

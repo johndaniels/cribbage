@@ -8,7 +8,7 @@ export function Cut({deck, cutCard, cutDeck, startPlay}) {
     if (cutCard) {
         deckOrCard = <div>
             <p>Result Card:</p>
-            {cutCard ? <Card card={cutCard} /> : null}
+            {cutCard ? <Card card={cutCard} visible={true} /> : null}
             <button onClick={() => startPlay()}>Start Play</button>
         </div>;
     } else {

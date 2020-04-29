@@ -12,7 +12,7 @@ module.exports = {
             "jsx": true
         }
     },
-    env: { es6: true, browser: true, "jest/globals": true},
+    env: { es6: true, browser: true, "jest/globals": true, node: true},
     "ignorePatterns": ["webpack.config.js", "node_modules/"],
     "settings": {
         "react": {
