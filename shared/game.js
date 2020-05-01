@@ -31,8 +31,6 @@ function removeCards(hand, cardIndices) {
 
 export function createGame() {
     return {
-        playerNames: [null, null],
-        playerReady: [false, false],
         dealer: 0,
         phase: PHASE.CUTTING_FOR_DEAL,
         cuttingState: {

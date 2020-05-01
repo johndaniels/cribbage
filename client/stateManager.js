@@ -80,9 +80,8 @@ export default class StateManager {
                 players: this.players,
                 gameId: this.gameId,
             });
-        } else if (data.type === 'playerInfo') {
-            this.players = this.players.slice();
-            this.players[(this.playerIndex + 1) % 2] = data.playerInfo;
+        } else if (data.type === 'players') {
+            this.players = data.players.slice();
             this.gameStateChangeHandler({
                 game: this.game,
                 players: this.players,

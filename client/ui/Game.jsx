@@ -11,6 +11,7 @@ import {
     playCardAction,
     showCribAction,
     nextHandAction,
+    processAction,
 } from '../../shared/actions';
 import { PHASE } from '../../shared/game';
 import { CutForDeal } from './CutForDeal.jsx';
@@ -32,6 +33,10 @@ const HeaderStyled = styled.div`
 const PlayerNameDisplay = styled.div`
     width: 100px;
 `
+
+const PaddedCenter = styled.div`
+    margin-top: 30px;
+`;
 
 
 function Header({playerName, setPlayerName}) {
@@ -138,9 +143,12 @@ export class Game extends React.Component {
         /*return (...args) => this.setState({
             game: processAction(this.state.game, action(...args)),
         });*/
-        return (...args) => this.setState({
-            game: this.props.stateManager.sendGameAction(action(...args)),
-        });
+        return (...args) => {
+            this.props.stateManager.sendGameAction(action(...args));
+            /*this.setState({
+                game: processAction(this.state.game, action(...args)),
+            })*/
+        };
     }
 
     renderGameBoard() {
@@ -205,9 +213,6 @@ export class Game extends React.Component {
     }
 
     render() {
-        const PaddedCenter = styled.div`
-            margin-top: 30px;
-        `;
         return <div>
             <Header playerName={this.state.playerName} setPlayerName={this.setPlayerName}/>
             <PaddedCenter>
