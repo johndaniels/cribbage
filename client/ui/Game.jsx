@@ -1,5 +1,5 @@
 import React,  {useState} from 'react';
-import { createGame, cutForDeal, resetCutting, startLayAway, layAwayCards, startCut, cutDeck, startPlay, playCard, markPlayerReady, showCrib, nextHand } from '../../shared/game';
+import {  markPlayerReady } from '../../shared/game';
 import {
     cutForDealAction,
     resetCuttingAction,
@@ -11,14 +11,12 @@ import {
     playCardAction,
     showCribAction,
     nextHandAction,
-    processAction,
 } from '../../shared/actions';
 import { PHASE } from '../../shared/game';
 import { CutForDeal } from './CutForDeal.jsx';
 import { LayAway } from './LayAway.jsx';
 import { Cut } from './Cut.jsx';
 import { Play } from './Play.jsx';
-import LocalPlayerToggle from './LocalPlayerToggle.jsx';
 import Lobby from './Lobby.jsx';
 import HomePage from './HomePage.jsx';
 import PropTypes from 'prop-types';
@@ -78,11 +76,12 @@ Header.propTypes = {
 export class Game extends React.Component {
     constructor(props) {
         super(props);
-        props.stateManager.onGameStateChange(({game, gameId, players}) => {
+        props.stateManager.onGameStateChange(({game, gameId, players, playerIndex}) => {
             this.setState({
                 game,
                 gameId,
                 players,
+                localPlayer: playerIndex,
             });
         });
         props.stateManager.onConnectionStateChange((connectionState) => {
@@ -168,30 +167,48 @@ export class Game extends React.Component {
                 cutForDeal={this.cutForDeal} 
                 resetCutting={this.resetCutting}
                 startLayAway={this.startLayAway}
+                localPlayer={this.state.localPlayer}
+                players={this.state.players}
             />
         } else if (game.phase === PHASE.LAY_AWAY) {
             return <LayAway 
                 game={game}
                 layAwayCards={this.layAwayCards}
                 startCut={this.startCut}
+                localPlayer={this.state.localPlayer}
+                players={this.state.players}
             />
         } else if (game.phase === PHASE.CUTTING) {
             return <Cut
                 deck={game.deck}
                 cutCard={game.cutCard}
                 cutDeck={this.cutDeck}
-                startPlay={this.startPlay} />
+                startPlay={this.startPlay}
+                localPlayer={this.state.localPlayer}
+                dealer={game.dealer}
+                />
         } else if (game.phase === PHASE.PLAYING) {
             return <Play
                 game={game}
                 playCard={this.playCard}
                 showCrib={this.showCrib}
-                nextHand={this.nextHand}/>
+                nextHand={this.nextHand}
+                localPlayer={this.state.localPlayer}
+                players={this.state.players}
+                />
         }
     } 
 
     renderGame() {
+        const renderDealer = (player) => {
+            if (player==this.state.game.dealer) {
+                return " (Dealer)"
+            }
+        }
         return <div>
+            <div>Phase: {this.state.game.phase}</div>
+            <div>Player1: {this.state.players[0].playerName}{renderDealer(0)}</div>
+            <div>Player2: {this.state.players[1].playerName}{renderDealer(1)}</div>
             {this.renderGameBoard()}
         </div>
     }

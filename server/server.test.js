@@ -100,3 +100,44 @@ test('Test Close Second Client', () => {
 
     clientTwo.trigger("close");
 });
+
+test('Test Second PlayerInfo', () => {
+    const server = new Server();
+    const clientOne = new WebSocketMock();
+    const clientTwo = new WebSocketMock();
+
+    connectAndSendInfo(server, clientOne, "1", "one");
+
+    clientOne.triggerMessage({
+        type: 'create'
+    });
+    const createResult = clientOne.messages[0];
+    connectAndSendInfo(server, clientTwo, "2", "two");
+    clientTwo.triggerMessage({
+        type: 'join',
+        gameId: createResult.gameState.gameId,
+    });
+
+    clientOne.triggerMessage({
+        type: 'playerInfo',
+        playerInfo: {
+            playerId: '1',
+            playerName: 'onesies',
+        }
+    });
+    expect(clientTwo.messages[1]).toStrictEqual({
+        type: 'players',
+        players: [
+            {
+                playerId: '1',
+                playerName: 'onesies',
+            },
+            {
+                playerId: '2',
+                playerName: 'two',
+            }
+        ]
+    });
+
+    clientTwo.trigger("close");
+});

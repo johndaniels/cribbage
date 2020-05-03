@@ -72,6 +72,7 @@ export default class StateManager {
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
+                playerIndex: this.playerIndex,
             });
         } else if (data.type === 'gameAction') {
             this.game = processAction(this.game, data.gameAction);
@@ -79,6 +80,7 @@ export default class StateManager {
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
+                playerIndex: this.playerIndex,
             });
         } else if (data.type === 'players') {
             this.players = data.players.slice();
@@ -86,6 +88,7 @@ export default class StateManager {
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
+                playerIndex: this.playerIndex,
             });
         }
     }

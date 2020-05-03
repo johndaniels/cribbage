@@ -56,6 +56,7 @@ class GameManager {
     addPlayer(playerClient) {
         this.clients[1].push(playerClient);
         this.players[1] = playerClient.playerId;
+        console.log(this.getPlayers());
         for (const client of this.clients[0]) {
             client.sendPlayers(this.getPlayers());
         }
@@ -130,13 +131,15 @@ class ClientState {
                         clients: [],
                         games: [],
                         playerName: null,
+                        playerId: this.playerId,
                     }
                 }
-                if (this.players[this.playerId].playerName !== data.playerInfo.playerName) {
-                    this.players[this.playerId].playerName = data.playerInfo.playerName;
-                    this.sendPlayerInfoUpdates(this.playerId)
-                }
+                this.players[this.playerId].playerName = data.playerInfo.playerName;
+                this.sendPlayerInfoUpdates(this.playerId)
                 this.players[this.playerId].clients.push(this);
+            } else if (this.players[this.playerId].playerName !== data.playerInfo.playerName) {
+                this.players[this.playerId].playerName = data.playerInfo.playerName;
+                this.sendPlayerInfoUpdates(this.playerId)
             }
         } else if (data.type === 'create') {
             if (!this.playerId) {

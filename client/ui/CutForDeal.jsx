@@ -2,31 +2,38 @@ import React from 'react';
 import { CuttableDeck, Card } from './Cards.jsx';
 import PropTypes from 'prop-types';
 
-export function CutForDeal({cuttingState, cutForDeal, resetCutting, startLayAway}) {
+export function CutForDeal({cuttingState, cutForDeal, resetCutting, startLayAway, localPlayer, players}) {
+
+    const allDone = cuttingState.cutCards[1] != null;
+    const deck = allDone ? null : <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} disabled={localPlayer != activePlayer} />;
+    const activePlayer = cuttingState.cutCards[0] == null ? 0 : 1;
+
+    function renderStatus() {
+        if (allDone) {
+            return "Pick a dealer:";
+        } else {
+            return <div>{players[activePlayer].playerName} to cut:</div>
+        }
+    }
 
     return <div>
-        <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} />
+        {renderStatus()}
+        {deck}
         <div>
-            <p>Player 1 Card:</p>
+            <p>{players[0].playerName}&apos;s Card:</p>
             {cuttingState.cutCards[0] ? <Card card={cuttingState.cutCards[0]} visible={true}/> : null}
         </div>
         <div>
-            <p>Player 2 Card:</p>
+            <p>{players[1].playerName}&apos;s Card:</p>
             {cuttingState.cutCards[1] ? <Card card={cuttingState.cutCards[1]} visible={true} /> : null}
         </div>
         {
-            true || cuttingState.cutCards[0] && cuttingState.cutCards[1] ? 
-                <div>
-                    <button onClick={() => resetCutting()}>Cut Again</button>
-                    <button onClick={() => startLayAway(0)}> Player 1 Deals </button>
-                    <button onClick={() => startLayAway(1)}> Player 2 Deals </button>
-                </div>
-            : null
+            <div>
+                <button onClick={() => resetCutting()}>Cut Again</button>
+                <button onClick={() => startLayAway(0)}> {players[0].playerName} Deals </button>
+                <button onClick={() => startLayAway(1)}> {players[1].playerName} Deals </button>
+            </div>
         }
-        <div>
-            <p>Phase: Cutting For Deal </p>
-            <p>Player: {cuttingState.currentPlayer}</p>
-        </div>
     </div>;
 }
 
@@ -35,4 +42,6 @@ CutForDeal.propTypes = {
     cutForDeal: PropTypes.func,
     resetCutting: PropTypes.func,
     startLayAway: PropTypes.func,
+    localPlayer: PropTypes.number,
+    players: PropTypes.arrayOf(PropTypes.object)
 }

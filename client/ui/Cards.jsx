@@ -31,7 +31,7 @@ const CuttableContainer = styled.div`
     width: 30px;
     cursor: pointer;
     &:hover {
-        margin-top: -20px;
+        margin-top: ${props => props.disabled ? "0px": "-20px"};
     }
 `;
 
@@ -40,10 +40,11 @@ const CuttableCards = styled.div`
     margin-top: 20px;
 `;
 
-export function CuttableDeck({cards, cutForDeal}) {
+export function CuttableDeck({cards, cutForDeal, disabled}) {
     const cardDivs = cards.map((card, index) => {
-        return <CuttableContainer key={card.suit + card.value}>
-            <Card key={card.suit + card.value} card={card} onClick={() => cutForDeal(index)} visible={false}/>
+        const onClick = disabled ? null : () => cutForDeal(index);
+        return <CuttableContainer key={card.suit + card.value} disabled={disabled}>
+            <Card key={card.suit + card.value} card={card} onClick={onClick} visible={false}/>
         </CuttableContainer>;
     }).reverse();
     return <CuttableCards>
@@ -55,6 +56,7 @@ export function CuttableDeck({cards, cutForDeal}) {
 CuttableDeck.propTypes = {
     cards: PropTypes.array,
     cutForDeal: PropTypes.func,
+    disabled: PropTypes.bool,
 }
 
 const PlayableContainer = styled.div`
@@ -113,11 +115,11 @@ const DisplayCards = styled.div`
     display: flex; 
 `;
 
-export function DisplayHand({cards, visible}) {
+export function DisplayHand({cards, visible, disabled}) {
     const cardDivs = cards.map((card) => {
 
         return <DisplayContainer key={card.suit + card.value} >
-            <Card key={card.suit + card.value} card={card} />
+            <Card key={card.suit + card.value} card={card} visible={visible} />
         </DisplayContainer>;
     });
     return <DisplayCards>
