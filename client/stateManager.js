@@ -26,7 +26,7 @@ export default class StateManager {
         this.game = null;
         this.gameStateChangeHandler = () => {};
         this.connectionStateChangeHandler = () => {};
-        this.webSocket = new WebSocket('ws://localhost:3001');
+        this.webSocket = new WebSocket('ws://' + window.location.hostname + ':3001');
         this.webSocket.addEventListener('open', () => {
             this.connected = true;
             this.webSocket.send(JSON.stringify({
