@@ -96,7 +96,7 @@ export function PlayableHand({cards, play, playCount}) {
         <PlayableCards>
             {cardDivs}
         </PlayableCards>
-        <button disabled={playCount <= 0} onClick={() => play(selectedIndices)}>Play Card(s)</button>
+        <button disabled={playCount <= 0 || selectedIndices.length != playCount} onClick={() => {setSelectedIndices([]); play(selectedIndices)}}>Play Card(s)</button>
     </div>;
 }
 
