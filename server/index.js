@@ -14,7 +14,11 @@ const logger = winston.createLogger({
     ]
 });
 
-app.use('/', express.static("dist"))
+app.use(express.static("dist"))
+app.use( (req, res) => {
+    res.sendfile("dist/index.html")
+  }
+)
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 
 const server = new Server();
