@@ -25,27 +25,32 @@ const PlayedContainer = styled.div`
 
 export function Play({game, playCard, showCrib, nextHand, localPlayer, players}) {
     const canMoveForward = game.hands[0].length == 0 && game.hands[1].length == 0;
-    const playerOneHand = getHand(game.hands[0], game.currentPlayer == 0 && localPlayer == 0, localPlayer == 0, playCard);
-    const playerTwoHand = getHand(game.hands[1], game.currentPlayer == 1 && localPlayer == 1, localPlayer == 1, playCard);
+    const topPlayer = (localPlayer + 1) % 2;
+    const bottomPlayer = localPlayer;
+
+    const topPlayerHand = getHand(game.hands[topPlayer], game.currentPlayer == topPlayer && localPlayer == topPlayer, localPlayer == topPlayer, playCard);
+    const bottomPlayerHand = getHand(game.hands[bottomPlayer], game.currentPlayer == bottomPlayer && localPlayer == bottomPlayer, localPlayer == bottomPlayer, playCard);
     let moveForwardButton;
     if (!game.cribVisible) {
         moveForwardButton = <button disabled={!canMoveForward} onClick={showCrib}>Show Crib</button>;
     } else {
         moveForwardButton = <button disabled={!game.cribVisible} onClick={nextHand}>Next Hand</button>;
     }
+
+    
+
     return <PlayContainer>
         <HandsContainer>
-            <p>{players[0].playerName}&apos;s Hand</p>
-            {playerOneHand}
-            <p></p>
+            <p>{players[topPlayer].playerName}&apos;s Hand</p>
+            {topPlayerHand}
             
-            <p>{players[1].playerName}&apos;s Hand</p>
-            {playerTwoHand}
+            <p>{players[bottomPlayer].playerName}&apos;s Hand</p>
+            {bottomPlayerHand}
         </HandsContainer>
         <PlayedContainer>
             <p>Played</p>
-            <DisplayHand cards={game.playedCards[0]} visible />
-            <DisplayHand cards={game.playedCards[1]} visible />
+            <DisplayHand cards={game.playedCards[topPlayer]} visible />
+            <DisplayHand cards={game.playedCards[bottomPlayer]} visible />
             <p>Crib</p>
                 <DisplayHand cards={game.cribCards} visible={game.cribVisible } />
                 {moveForwardButton}
