@@ -31,7 +31,7 @@ function removeCards(hand, cardIndices) {
 
 export function createGame() {
     return {
-        dealer: 0,
+        dealer: null,
         phase: PHASE.CUTTING_FOR_DEAL,
         cuttingState: {
             deck: shuffleDeck(fullDeck()),
@@ -97,6 +97,7 @@ export function startLayAway(game, dealer, deck=null) {
         hands = [hands[1], hands[0]];
     }
     return update(game, {
+        dealer: {$set: dealer},
         phase: {$set: PHASE.LAY_AWAY},
         cuttingState: {$set: null},
         cribCards: {$set: [] },

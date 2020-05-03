@@ -115,7 +115,7 @@ const DisplayCards = styled.div`
     display: flex; 
 `;
 
-export function DisplayHand({cards, visible, disabled}) {
+export function DisplayHand({cards, visible}) {
     const cardDivs = cards.map((card) => {
 
         return <DisplayContainer key={card.suit + card.value} >

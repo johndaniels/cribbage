@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 export function CutForDeal({cuttingState, cutForDeal, resetCutting, startLayAway, localPlayer, players}) {
 
     const allDone = cuttingState.cutCards[1] != null;
-    const deck = allDone ? null : <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} disabled={localPlayer != activePlayer} />;
     const activePlayer = cuttingState.cutCards[0] == null ? 0 : 1;
+    const deck = allDone ? null : <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} disabled={localPlayer != activePlayer} />;
 
     function renderStatus() {
         if (allDone) {

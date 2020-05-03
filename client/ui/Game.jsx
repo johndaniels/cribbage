@@ -201,7 +201,7 @@ export class Game extends React.Component {
 
     renderGame() {
         const renderDealer = (player) => {
-            if (player==this.state.game.dealer) {
+            if (player === this.state.game.dealer) {
                 return " (Dealer)"
             }
         }
