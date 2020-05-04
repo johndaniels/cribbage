@@ -69,7 +69,7 @@ export function cutForDeal(game, position) {
     return update(game, {
         cuttingState: {
             currentPlayer: {$set: nextPlayer},
-            deck: {$splice: [[0, position + 1]]},
+            deck: {$splice: [[position, 1]]},
             cutCards: setForPlayer(game.cuttingState.currentPlayer, cutCard),
         }
     });

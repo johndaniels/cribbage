@@ -48,7 +48,8 @@ test('Networking Test', () => {
     expect(Object.keys(server.players)).toStrictEqual(["1"]);
 
     clientOne.triggerMessage({
-        type: 'create'
+        type: 'create',
+        gameId: 'gameId',
     });
     const createResult = clientOne.messages[0]
     expect(createResult).toMatchObject({
@@ -89,7 +90,8 @@ test('Test Close Second Client', () => {
     connectAndSendInfo(server, clientOne, "1", "one");
 
     clientOne.triggerMessage({
-        type: 'create'
+        type: 'create',
+        gameId: 'game',
     });
     const createResult = clientOne.messages[0];
     connectAndSendInfo(server, clientTwo, "2", "two");
@@ -109,7 +111,8 @@ test('Test Second PlayerInfo', () => {
     connectAndSendInfo(server, clientOne, "1", "one");
 
     clientOne.triggerMessage({
-        type: 'create'
+        type: 'create',
+        gameId: 'first',
     });
     const createResult = clientOne.messages[0];
     connectAndSendInfo(server, clientTwo, "2", "two");
@@ -140,4 +143,58 @@ test('Test Second PlayerInfo', () => {
     });
 
     clientTwo.trigger("close");
+});
+
+test('Test No Game exists', () => {
+    const server = new Server();
+    const clientOne = new WebSocketMock();
+    const clientTwo = new WebSocketMock();
+
+    connectAndSendInfo(server, clientOne, "1", "one");
+    expect(Object.keys(server.players)).toStrictEqual(["1"]);
+
+    clientOne.triggerMessage({
+        type: 'create',
+        gameId: 'first',
+    });
+    const createResult = clientOne.messages[0]
+    expect(createResult).toMatchObject({
+        type: 'gameState',
+    });
+    connectAndSendInfo(server, clientTwo, "2", "two");
+
+    clientTwo.triggerMessage({
+        type: 'join',
+        gameId: "second",
+    });
+    expect(clientTwo.messages[0]).toMatchObject({
+        type: 'noSuchGame',
+    });
+});
+
+test('Test Game already exists', () => {
+    const server = new Server();
+    const clientOne = new WebSocketMock();
+    const clientTwo = new WebSocketMock();
+
+    connectAndSendInfo(server, clientOne, "1", "one");
+    expect(Object.keys(server.players)).toStrictEqual(["1"]);
+
+    clientOne.triggerMessage({
+        type: 'create',
+        gameId: 'first',
+    });
+    const createResult = clientOne.messages[0]
+    expect(createResult).toMatchObject({
+        type: 'gameState',
+    });
+    connectAndSendInfo(server, clientTwo, "2", "two");
+
+    clientTwo.triggerMessage({
+        type: 'create',
+        gameId: 'first',
+    });
+    expect(clientTwo.messages[0]).toMatchObject({
+        type: 'gameAlreadyExists',
+    });
 });

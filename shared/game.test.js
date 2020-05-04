@@ -9,11 +9,15 @@ test('Creating Game and cutting deck twice', () => {
     game = cutForDeal(game, 10);
     game = cutForDeal(game, 10);
 
+    const remainingCards = fullDeck();
+    remainingCards.splice(10, 1);
+    remainingCards.splice(10, 1);
+
     const expectedResult = {
-        dealer: 0,
+        dealer: null,
         phase: PHASE.CUTTING_FOR_DEAL,
         cuttingState: {
-            deck: fullDeck().slice(22),
+            deck: remainingCards,
             currentPlayer: 0,
             cutCards: [
                 {
@@ -21,9 +25,9 @@ test('Creating Game and cutting deck twice', () => {
                     value: 3,
                 },
                 {
-                suit: "DIAMONDS",
-                value: 6,
-            }]
+                    suit: "SPADES",
+                    value: 3,
+                }]
         },
         deck: null,
         cutCard: null,

@@ -10,10 +10,12 @@ function makeId(length) {
     return result;
 }
 
+const MAX_RETRY_MUL = 16;
 export default class StateManager {
     constructor() {
         this.open = false;
-        this.gameId;
+        this.gameId = null;
+        this.retryMul = 1;
         this.playerId = window.localStorage.getItem("playerId");
         if (this.playerId === null) {
             this.playerId = makeId(8);
@@ -21,14 +23,30 @@ export default class StateManager {
         }
         this.playerName = window.localStorage.getItem("playerName") || "Change Me";
         if (window.location.pathname.length > 1) {
-            this.gameId = window.location.pathname.substr(1);
+            this.joiningGame = true;
+            this.homepageGameName = window.location.pathname.substr(1);
+        } else {
+            this.joiningGame = false;
+            this.homepageGameName = makeId(8);
         }
         this.game = null;
-        this.gameStateChangeHandler = () => {};
-        this.connectionStateChangeHandler = () => {};
+        this.stateChangeHandler = () => {};
+        this.connect();
+    }
+
+    setLoaded() {
+        this.stateChangeHandler({
+            loaded: true,
+        });
+    }
+
+    connect() {
         this.webSocket = new WebSocket('ws://' + window.location.hostname + ':3001');
         this.webSocket.addEventListener('open', () => {
-            this.connected = true;
+            this.isConnected = true;
+            if (!this.joiningGame) {
+                this.setLoaded();
+            }
             this.webSocket.send(JSON.stringify({
                 type: "playerInfo",
                 playerInfo: {
@@ -36,67 +54,103 @@ export default class StateManager {
                     playerName: this.playerName,
                 }
             }));
-            if (this.gameId) {
+            if (this.homepageGameName && !this.gameId) {
                 this.webSocket.send(JSON.stringify({
                     type: "join",
-                    gameId: this.gameId,
+                    gameId: this.homepageGameName,
                 }));
             }
-            this.connectionStateChangeHandler({
-                open: true,
-            });
+            this.handleConnectionStateChange(true);
         });
         this.webSocket.addEventListener('message', (event) => {
             this.handleMessage(event);
         })
+
+        this.webSocket.addEventListener('close', () => {
+            console.log("Connection Closed");
+            this.handleConnectionStateChange(false);
+        });
     }
 
-    onGameStateChange(handler) {
-        this.gameStateChangeHandler = handler;
+    triggerConnectionRetry() {
+        const retryMul = this.retryMul * Math.random();
+        if (retryMul < MAX_RETRY_MUL) {
+            this.retryMul *= 2;
+        }
+        setTimeout(() => {
+            if (document.visibilityState != 'visible') {
+                setTimeout(() => this.triggerConnectionRetry(), 5000);
+            } else {
+                console.log("Trying to connect");
+                this.connect();
+            }
+        }, 5000)
     }
 
-    onConnectionStateChange(handler) {
-        this.connectionStateChangeHandler = handler;
+    onStateChange(handler) {
+        this.stateChangeHandler = handler;
+    }
+
+    handleConnectionStateChange(isConnected) {
+        if (!isConnected) {
+            this.triggerConnectionRetry();
+        }
+        this.stateChangeHandler({
+            isConnected,
+        });
     }
 
     handleMessage(message) {
         console.log(message.data);
         const data = JSON.parse(message.data);
-        if (data.type === 'gameState') {
+        if (data.type === 'error') {
+            window.alert("Error: " + data.error);
+        } else if (data.type === 'gameState') {
+            this.setLoaded();
             this.game = data.gameState.game;
             this.gameId = data.gameState.gameId;
             history.replaceState(null, "", "/" + this.gameId);
             this.players = data.gameState.players;
             this.playerIndex = this.players.map(p => p?.playerId).indexOf(this.playerId);
-            this.gameStateChangeHandler({
+            this.stateChangeHandler({
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
-                playerIndex: this.playerIndex,
+                localPlayer: this.playerIndex,
             });
         } else if (data.type === 'gameAction') {
             this.game = processAction(this.game, data.gameAction);
-            this.gameStateChangeHandler({
+            this.stateChangeHandler({
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
-                playerIndex: this.playerIndex,
+                localPlayer: this.playerIndex,
             });
         } else if (data.type === 'players') {
             this.players = data.players.slice();
-            this.gameStateChangeHandler({
+            this.stateChangeHandler({
                 game: this.game,
                 players: this.players,
                 gameId: this.gameId,
-                playerIndex: this.playerIndex,
+                localPlayer: this.playerIndex,
             });
+        } else if (data.type === 'gameAlreadyExists') {
+            this.stateChangeHandler({
+                alreadyExists: true,
+            })
+        } else if (data.type === 'noSuchGame') {
+            this.stateChangeHandler({
+                noSuchGame: true,
+                loaded: true,
+            })
         }
     }
 
-    sendCreateGame() {
+    sendCreateGame(name) {
         this.webSocket.send(JSON.stringify({
             type: "create",
             playerId: this.playerId,
+            gameId: name,
         }));
         return new Promise((resolve, reject) => {
             this.createResolve = resolve;

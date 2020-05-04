@@ -36,8 +36,17 @@ const PaddedCenter = styled.div`
     margin-top: 30px;
 `;
 
+function makeId(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
-function Header({playerName, setPlayerName}) {
+function Header({isConnected, playerName, setPlayerName}) {
     
     const [isEditing, setEditing] = useState(false);
     const [playerNameDraft, setPlayerNameDraft] = useState(playerName || "");
@@ -58,12 +67,14 @@ function Header({playerName, setPlayerName}) {
             <label>Username: </label>
             <PlayerNameDisplay>{playerName}</PlayerNameDisplay>
             <button onClick={() => setEditing(true)}>Edit</button>
+            Connection Status: {isConnected ? "Connected" : "Not Connected" }
         </HeaderStyled>;
     } else {
         return <HeaderStyled>
             <label>Username: </label>
             <input value={playerNameDraft} onKeyPress={onKeyPress} onChange={(event) => setPlayerNameDraft(event.target.value)}/>
             <button onClick={savePlayerName}>Save</button>
+            Connection Status: {isConnected ? "Connected" : "Not Connected" }
         </HeaderStyled>
     }
 }
@@ -76,27 +87,20 @@ Header.propTypes = {
 export class Game extends React.Component {
     constructor(props) {
         super(props);
-        props.stateManager.onGameStateChange(({game, gameId, players, playerIndex}) => {
-            this.setState({
-                game,
-                gameId,
-                players,
-                localPlayer: playerIndex,
-            });
-        });
-        props.stateManager.onConnectionStateChange((connectionState) => {
-            this.setState({
-                open: connectionState.open,
-            });
+        props.stateManager.onStateChange((state) => {
+            this.setState(state);
         });
 
         this.state = {
             game: props.stateManager.game,
             gameId: props.stateManager.gameId,
-            open: props.stateManager.open,
+            isConnected: props.stateManager.isConnected,
             playerName: props.stateManager.playerName,
             players: [null, null],
             localPlayer: 0,
+            alreadyExists: false,
+            noSuchGame: false,
+            homepageGameName: props.stateManager.homepageGameName,
         };
 
         // We take our action generating functions and bind them, causing them to call
@@ -215,12 +219,23 @@ export class Game extends React.Component {
 
     renderHome() {
         return <HomePage
-            createGame={() => this.props.stateManager.sendCreateGame()}
+            createGame={(name) => this.props.stateManager.sendCreateGame(name)}
+            alreadyExists={this.state.alreadyExists}
+            noSuchGame={this.state.noSuchGame}
+            gameName={this.state.homepageGameName}
+            setGameName={(name) => {
+                this.setState({
+                    alreadyExists: false,
+                    homepageGameName: name,
+                });
+            }}
         />
     }
 
     renderCenter() {
-        if (!this.state.gameId) {
+        if (!this.state.loaded) {
+            return <div>Loading...</div>
+        } else if (!this.state.gameId) {
             return this.renderHome();
         } else if (this.state.players.some(p => !p)) {
             return <div>Waiting for Player</div>
@@ -231,7 +246,7 @@ export class Game extends React.Component {
 
     render() {
         return <div>
-            <Header playerName={this.state.playerName} setPlayerName={this.setPlayerName}/>
+            <Header isConnected={this.state.isConnected} playerName={this.state.playerName} setPlayerName={this.setPlayerName}/>
             <PaddedCenter>
                 {this.renderCenter()}
             </PaddedCenter>

@@ -12,15 +12,7 @@ const logger = winston.createLogger({
     ]
 });
 
-function makeId(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
+const ALPHA_REGEX = /^[a-z0-9]+$/i;
 
 class GameManager {
     constructor(server, gameId, playerOneClient) {
@@ -146,8 +138,22 @@ class ClientState {
                 this.sendError("Cannot create game without playerId");
                 return;
             }
-            const gameId = makeId(16);
-            this.gameManager = this.server.newGame(gameId, this);
+            if (!data.gameId) {
+                this.sendError("Must provide id of game to create");
+                return;
+            }
+            if (this.games[data.gameId]) {
+                this.ws.send(JSON.stringify({
+                    type: 'gameAlreadyExists',
+                }));
+                return;
+            }
+            if (!ALPHA_REGEX.test(data.gameId)) {
+                this.sendError("Game ID must be letters and numbers only");
+                return;
+            }
+
+            this.gameManager = this.server.newGame(data.gameId, this);
             this.playerIndex = 0;
 
             this.players[this.playerId].games.push(this.gameManager);
@@ -168,7 +174,9 @@ class ClientState {
             }
             const gameManager = this.games[data.gameId];
             if (!gameManager) {
-                this.sendError("Could not find game with that Id");
+                this.ws.send(JSON.stringify({
+                    type: 'noSuchGame'
+                }));
                 return;
             }
             const playerIndex = gameManager.players.indexOf(this.playerId);
