@@ -54,7 +54,7 @@ export default class StateManager {
                     playerName: this.playerName,
                 }
             }));
-            if (this.homepageGameName && !this.gameId) {
+            if (this.homepageGameName && this.joiningGame) {
                 this.webSocket.send(JSON.stringify({
                     type: "join",
                     gameId: this.homepageGameName,
