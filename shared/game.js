@@ -187,6 +187,12 @@ export function playCard(game, cardIndex) {
     });
 }
 
+export function pass(game) {
+    return update(game, {
+        currentPlayer: {$set: (game.currentPlayer + 1) % 2},
+    });
+}
+
 export function showCrib(game) {
     return update(game, {
         cribVisible: { $set: true}

@@ -12,6 +12,7 @@ import {
     showCribAction,
     nextHandAction,
     reorderCardsAction,
+    passAction,
 } from '../../shared/actions';
 import { PHASE, REORDER_WHICH } from '../../shared/game';
 import { CutForDeal } from './CutForDeal.jsx';
@@ -117,6 +118,7 @@ export class Game extends React.Component {
         this.showCrib = this.bindAction(showCribAction);
         this.nextHand = this.bindAction(nextHandAction);
         this.reorderCards = this.bindAction(reorderCardsAction);
+        this.pass = this.bindAction(passAction);
 
 
         // Binding methods in general
@@ -208,6 +210,7 @@ export class Game extends React.Component {
                 playCard={this.playCard}
                 showCrib={this.showCrib}
                 nextHand={this.nextHand}
+                pass={this.pass}
                 localPlayer={this.state.localPlayer}
                 players={this.state.players}
                 reorderHand={(player, from, to) => {
