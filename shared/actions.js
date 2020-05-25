@@ -72,16 +72,16 @@ export function nextHandAction() {
     return { type: ACTION_TYPE.NEXT_HAND };
 }
 
-export function processAction(game, action) {
+export function processAction(game, prng, action) {
     switch (action.type) {
         case ACTION_TYPE.MARK_PLAYER_READY:
             return markPlayerReady(game, action.player, action.playerName);
         case ACTION_TYPE.CUT_FOR_DEAL:
             return cutForDeal(game, action.position);
         case ACTION_TYPE.RESET_CUTTING:
-            return resetCutting(game);
+            return resetCutting(game, prng);
         case ACTION_TYPE.START_LAY_AWAY:
-            return startLayAway(game, action.dealer);
+            return startLayAway(game, action.dealer, prng);
         case ACTION_TYPE.LAY_AWAY_CARDS:
             return layAwayCards(game, action.player, action.cardIndices);
         case ACTION_TYPE.START_CUT:
@@ -95,7 +95,7 @@ export function processAction(game, action) {
         case ACTION_TYPE.SHOW_CRIB:
             return showCrib(game);
         case ACTION_TYPE.NEXT_HAND:
-            return nextHand(game);
+            return nextHand(game, prng);
         default:
             throw new Error("Bad action type!");
     }

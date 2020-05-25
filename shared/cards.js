@@ -34,9 +34,9 @@ export function compareCards(a, b) {
     return 0;
 }
 
-export function shuffleDeck(cards) {
+export function shuffleDeck(cards, prng) {
     const result = cards.slice(0);
-    shuffle(result);
+    shuffle(result, {rng: prng});
     return result;
 }
 

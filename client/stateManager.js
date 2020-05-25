@@ -1,4 +1,5 @@
 import { processAction } from "../shared/actions";
+import seedrandom from 'seedrandom';
 
 function makeId(length) {
     var result           = '';
@@ -112,6 +113,7 @@ export default class StateManager {
             history.replaceState(null, "", "/" + this.gameId);
             this.players = data.gameState.players;
             this.playerIndex = this.players.map(p => p?.playerId).indexOf(this.playerId);
+            this.prng = new seedrandom(null, {state: data.gameState.prngState});
             this.stateChangeHandler({
                 game: this.game,
                 players: this.players,
@@ -119,7 +121,7 @@ export default class StateManager {
                 localPlayer: this.playerIndex,
             });
         } else if (data.type === 'gameAction') {
-            this.game = processAction(this.game, data.gameAction);
+        this.game = processAction(this.game, this.prng, data.gameAction);
             this.stateChangeHandler({
                 game: this.game,
                 players: this.players,

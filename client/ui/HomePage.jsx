@@ -7,7 +7,7 @@ export default function HomePage({createGame, alreadyExists, gameName, setGameNa
         {noSuchGame ? <p>This game ({gameName}) does not exist. You can create it with the form below:</p>: null}
         <input value={gameName} onChange={(e) => setGameName(e.target.value)} />
         <button onClick={() => createGame(gameName)}>Create Game</button>
-        {alreadyExists ? `This game (${gameName}) already exists. Try a different name or join at ${window.host}/${gameName}` : null}
+        {alreadyExists ? `This game (${gameName}) already exists. Try a different name or join at ${window.location.host}/${gameName}` : null}
     </div>
 }
 

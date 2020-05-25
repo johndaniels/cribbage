@@ -1,15 +1,18 @@
 import { startLayAway, layAwayCards, nextHand, startCut, cutDeck, cutForDeal, createGame, showCrib, PHASE, startPlay, playCard} from './game';
-import { compareCards, fullDeck } from './cards';
+import { compareCards, fullDeck, shuffleDeck } from './cards';
+import seedrandom from 'seedrandom';
 
 test('Creating Game and cutting deck twice', () => {
-    let game = createGame();
+    const prng = seedrandom("seed");
+    const prngExpected = seedrandom("seed");
+    let game = createGame(prng);
+    const remainingCards = shuffleDeck(fullDeck(), prngExpected);
+    expect(game.cuttingState.deck).toStrictEqual(remainingCards);
 
     // Sort cards to make this deterministic
-    game.cuttingState.deck.sort(compareCards)
     game = cutForDeal(game, 10);
     game = cutForDeal(game, 10);
 
-    const remainingCards = fullDeck();
     remainingCards.splice(10, 1);
     remainingCards.splice(10, 1);
 
@@ -21,12 +24,12 @@ test('Creating Game and cutting deck twice', () => {
             currentPlayer: 0,
             cutCards: [
                 {
-                    suit: "HEARTS",
-                    value: 3,
+                    suit: "SPADES",
+                    value: 6,
                 },
                 {
-                    suit: "SPADES",
-                    value: 3,
+                    suit: "DIAMONDS",
+                    value: 6,
                 }]
         },
         deck: null,
@@ -42,11 +45,15 @@ test('Creating Game and cutting deck twice', () => {
 });
 
 test('Starting Play and layaway', () => {
-    let game = createGame();
+    let prng = seedrandom("seed");
+    let game = createGame(prng);
 
+    prng = seedrandom("seed2");
+    const prngExpected = seedrandom("seed2");
     // Sort cards to make this deterministic
-    const deck = fullDeck();
-    game = startLayAway(game, 0, fullDeck());
+    const deck = shuffleDeck(fullDeck(), prngExpected);
+    game = startLayAway(game, 0, prng);
+    expect(game.deck).toStrictEqual(deck.slice(12));
     game = layAwayCards(game, 0, [1,2]);
     game = layAwayCards(game, 1, [3,4]);
     expect(game).toStrictEqual({
@@ -95,14 +102,14 @@ test('Starting Play and layaway', () => {
 
     expect(game.cribVisible).toBe(true);
 
-    let newDeck = fullDeck();
-    game = nextHand(game, newDeck);
+    let newDeck = shuffleDeck(fullDeck(), prngExpected);
+    game = nextHand(game, prng);
 
     expect(game).toStrictEqual({
         dealer: 1,
         phase: PHASE.LAY_AWAY,
         cuttingState: null,
-        hands: [[newDeck[1], newDeck[3], newDeck[5], newDeck[7], newDeck[9], newDeck[11]], [newDeck[0], newDeck[2], deck[4], newDeck[6], newDeck[8], newDeck[10]]],
+        hands: [[newDeck[1], newDeck[3], newDeck[5], newDeck[7], newDeck[9], newDeck[11]], [newDeck[0], newDeck[2], newDeck[4], newDeck[6], newDeck[8], newDeck[10]]],
         cribCards: [ ],
         deck: newDeck.slice(12),
         cutCard: null,

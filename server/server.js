@@ -1,5 +1,6 @@
 import { createGame } from '../shared/game.js';
 import { processAction } from '../shared/actions.js';
+import seedrandom from 'seedrandom';
 import WebSocket from 'ws';
 
 import winston from 'winston';
@@ -20,8 +21,13 @@ class GameManager {
         this.players = [playerOneClient.playerId, null];
         // A list of clients for each player
         this.clients = [[playerOneClient], []];
-        this.game = createGame();
+        this.prng = seedrandom(null, {state: true});
+        this.game = createGame(this.prng);
         this.server = server;
+    }
+
+    getPrngState() {
+        return this.prng.state();
     }
 
     allClients() {
@@ -55,7 +61,7 @@ class GameManager {
     }
 
     updateGame(gameAction) {
-        this.game = processAction(this.game, gameAction)
+        this.game = processAction(this.game, this.prng, gameAction)
         for (const client of this.allClients()) {
             client.sendGameAction(gameAction);
         }
@@ -165,6 +171,7 @@ class ClientState {
                     game: this.gameManager.game,
                     gameId: this.gameManager.gameId,
                     players: this.gameManager.getPlayers(),
+                    prngState: this.gameManager.getPrngState(),
                 }
             }));
         } else if (data.type === 'join') {
@@ -204,6 +211,7 @@ class ClientState {
                     game: this.gameManager.game,
                     gameId: this.gameManager.gameId,
                     players: this.gameManager.getPlayers(),
+                    prngState: this.gameManager.getPrngState(),
                 }
             }));
         } else if (data.type === 'gameAction') {

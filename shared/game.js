@@ -29,12 +29,15 @@ function removeCards(hand, cardIndices) {
     return [newHand, removed]
 }
 
-export function createGame() {
+export function createGame(prng) {
+    if (!prng) {
+        throw new Error("PRNG is required");
+    }
     return {
         dealer: null,
         phase: PHASE.CUTTING_FOR_DEAL,
         cuttingState: {
-            deck: shuffleDeck(fullDeck()),
+            deck: shuffleDeck(fullDeck(), prng),
             currentPlayer: 0,
             cutCards: [null, null]
         },
@@ -75,20 +78,26 @@ export function cutForDeal(game, position) {
     });
 }
 
-export function resetCutting(game) {
+export function resetCutting(game, prng) {
+    if (!prng) {
+        throw new Error("PRNG is required");
+    }
     return update(game, {
         cuttingState: {$set: 
             {
                 currentPlayer: 0,
-                deck: shuffleDeck(fullDeck()),
+                deck: shuffleDeck(fullDeck(), prng),
                 cutCards: [null, null]
             }
         }
     });
 }
 
-export function startLayAway(game, dealer, deck=null) {
-    deck = deck || shuffleDeck(fullDeck());
+export function startLayAway(game, dealer, prng) {
+    if (!prng) {
+        throw new Error("PRNG is required");
+    }
+    let deck = shuffleDeck(fullDeck(), prng);
     let hands = [
         [deck[0], deck[2], deck[4], deck[6], deck[8], deck[10]],
         [deck[1], deck[3], deck[5], deck[7], deck[9], deck[11]],
@@ -151,8 +160,11 @@ export function showCrib(game) {
     });
 }
 
-export function nextHand(game, deck=null) {
-    deck = deck || shuffleDeck(fullDeck());
+export function nextHand(game, prng) {
+    if (!prng) {
+        throw new Error("PRNG is required");
+    }
+    const deck = shuffleDeck(fullDeck(), prng);
     let dealer = (game.dealer + 1) % 2;
     let hands = [
         [deck[0], deck[2], deck[4], deck[6], deck[8], deck[10]],
