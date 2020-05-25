@@ -44,8 +44,13 @@ const CardList = styled.div`
     margin-top: 40px;
 `;
 
-export function Hand({cards, canPlay, playCount, playText, visible, narrow, play, reorder}) {
-    const [selectedIndices, setSelectedIndices] = useState([]);
+const SortableCardContainer = SortableElement(({card, playable, narrow, selected, onClick, visible}) => {
+    return <CardContainer key={card.suit + card.value} playable={playable} narrow={narrow} selected={selected}>
+        <Card key={card.suit + card.value} card={card} onClick={onClick} visible={visible}/>
+    </CardContainer>;
+});
+
+const SortableCardList = SortableContainer(({cards, canPlay, playCount, visible, narrow, canReorder, selectedIndices, setSelectedIndices}) => {
 
     const cardDivs = cards.map((card, index) => {
         // Only handle clicks if we are playable
@@ -58,17 +63,44 @@ export function Hand({cards, canPlay, playCount, playText, visible, narrow, play
             }
             setSelectedIndices(newSelectedIndices);
         } : null;
-        return <CardContainer key={card.suit + card.value} playable={canPlay && playCount > 0} narrow={narrow} selected={selectedIndices.includes(index)}>
-            <Card key={card.suit + card.value} card={card} onClick={onClick} visible={visible}/>
-        </CardContainer>;
+        return <SortableCardContainer
+            key={card.suit + card.value}
+            index={index}
+            card={card}
+            playable={canPlay && playCount > 0}
+            selected={selectedIndices.includes(index)}
+            narrow={narrow}
+            visible={visible}
+            onClick={onClick}
+            disabled={!canReorder}
+        />
     });
+    return <CardList>
+        {cardDivs}
+    </CardList>
+})
+
+export const Hand = SortableContainer(function Hand({cards, canPlay, playCount, playText, visible, narrow, play, reorder}) {
+    const [selectedIndices, setSelectedIndices] = useState([]);
+    
     return <div>
-        <CardList>
-            {cardDivs}
-        </CardList>
+        <SortableCardList
+            cards={cards}
+            canPlay={canPlay}
+            playCount={playCount}
+            visible={visible}
+            narrow={narrow}
+            selectedIndices={selectedIndices}
+            setSelectedIndices={setSelectedIndices}
+            reorder={reorder}
+            axis="x"
+            distance={20}
+            onSortEnd={reorder}
+            canReorder={!!reorder}
+        />
         {canPlay && <button disabled={playCount <= 0 || selectedIndices.length != playCount} onClick={() => {setSelectedIndices([]); play(selectedIndices)}}>{playText || "Play Card(s)"}</button>}
     </div>;
-}
+})
 
 Hand.propTypes = {
     cards: PropTypes.array,

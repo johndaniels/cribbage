@@ -3,13 +3,17 @@ import { Card, Hand } from './Cards.jsx';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-function getHand(cards, isCurrent, isLocal, playCard) {
+function getHand(cards, player, currentPlayer, localPlayer, playCard, reorderHand) {
+    const isCurrent = currentPlayer == player;
+    const isLocal = localPlayer == player;
+    const playerReorder = player==localPlayer ? ({oldIndex, newIndex}) => reorderHand(player, oldIndex, newIndex) : null;
     return <Hand
         cards={cards}
         playCount={isCurrent && isLocal ? 1 : 0}
         visible={isLocal}
         canPlay={isLocal}
         play={(cards) => playCard(cards[0])}
+        reorder={playerReorder}
         />
 }
 
@@ -25,21 +29,19 @@ const PlayedContainer = styled.div`
     width: 500px;
 `
 
-export function Play({game, playCard, showCrib, nextHand, localPlayer, players}) {
+export function Play({game, playCard, showCrib, nextHand, localPlayer, players, reorderHand}) {
     const canMoveForward = game.hands[0].length == 0 && game.hands[1].length == 0;
     const topPlayer = (localPlayer + 1) % 2;
     const bottomPlayer = localPlayer;
 
-    const topPlayerHand = getHand(game.hands[topPlayer], game.currentPlayer == topPlayer, localPlayer == topPlayer, playCard);
-    const bottomPlayerHand = getHand(game.hands[bottomPlayer], game.currentPlayer == bottomPlayer, localPlayer == bottomPlayer, playCard);
+    const topPlayerHand = getHand(game.hands[topPlayer], topPlayer, game.currentPlayer, localPlayer, playCard, reorderHand);
+    const bottomPlayerHand = getHand(game.hands[bottomPlayer], bottomPlayer, game.currentPlayer, localPlayer, playCard, reorderHand);
     let moveForwardButton;
     if (!game.cribVisible) {
         moveForwardButton = <button disabled={!canMoveForward} onClick={showCrib}>Show Crib</button>;
     } else {
         moveForwardButton = <button disabled={!game.cribVisible} onClick={nextHand}>Next Hand</button>;
     }
-
-    
 
     return <PlayContainer>
         <HandsContainer>
@@ -71,4 +73,6 @@ Play.propTypes = {
     nextHand: PropTypes.func,
     localPlayer: PropTypes.number,
     players: PropTypes.arrayOf(PropTypes.object),
+    reorderHand: PropTypes.func,
+    reorderCrib: PropTypes.func,
 }

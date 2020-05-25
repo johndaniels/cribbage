@@ -11,8 +11,9 @@ import {
     playCardAction,
     showCribAction,
     nextHandAction,
+    reorderCardsAction,
 } from '../../shared/actions';
-import { PHASE } from '../../shared/game';
+import { PHASE, REORDER_WHICH } from '../../shared/game';
 import { CutForDeal } from './CutForDeal.jsx';
 import { LayAway } from './LayAway.jsx';
 import { Cut } from './Cut.jsx';
@@ -115,6 +116,7 @@ export class Game extends React.Component {
         this.playCard = this.bindAction(playCardAction);
         this.showCrib = this.bindAction(showCribAction);
         this.nextHand = this.bindAction(nextHandAction);
+        this.reorderCards = this.bindAction(reorderCardsAction);
 
 
         // Binding methods in general
@@ -141,6 +143,7 @@ export class Game extends React.Component {
             game: markPlayerReady(this.state.game, this.state.localPlayer, playerName),
         });
     }
+    
 
     bindAction(action) {
         /*return (...args) => this.setState({
@@ -181,6 +184,14 @@ export class Game extends React.Component {
                 startCut={this.startCut}
                 localPlayer={this.state.localPlayer}
                 players={this.state.players}
+                reorderHand={(player, from, to) => {
+                    this.reorderCards({
+                        which: REORDER_WHICH.HAND,
+                        player,
+                        from,
+                        to,
+                    })
+                }}
             />
         } else if (game.phase === PHASE.CUTTING) {
             return <Cut
@@ -199,6 +210,29 @@ export class Game extends React.Component {
                 nextHand={this.nextHand}
                 localPlayer={this.state.localPlayer}
                 players={this.state.players}
+                reorderHand={(player, from, to) => {
+                    this.reorderCards({
+                        which: REORDER_WHICH.HAND,
+                        player,
+                        from,
+                        to,
+                    })
+                }}
+                reorderPlayed={(player, from, to) => {
+                    this.reorderCards({
+                        which: REORDER_WHICH.PLAYED,
+                        player: player,
+                        from,
+                        to,
+                    })
+                }}
+                reorderCrib={(from, to) => {
+                    this.reorderCards({
+                        which: REORDER_WHICH.CRIB,
+                        from,
+                        to,
+                    })
+                }}
                 />
         }
     } 

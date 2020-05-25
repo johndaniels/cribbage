@@ -10,17 +10,19 @@ const LayAwayContainer = styled.div`
 const HandsContainer = styled.div`
     width: 700px;
 `;
-export function LayAway({game, layAwayCards, startCut, localPlayer, players}) {
+export function LayAway({game, layAwayCards, startCut, localPlayer, players, reorderHand}) {
     const canMoveForward = game.hands[0].length == 4 && game.hands[1].length == 4;
     function renderHand(player) {
-        const isLocalPayer = player == localPlayer;
+        const isLocalPlayer = player == localPlayer;
+        const reorder = isLocalPlayer ? ({oldIndex, newIndex}) => reorderHand(player, oldIndex, newIndex) : null;
         return <Hand 
             cards={game.hands[player]}
-            canPlay={isLocalPayer}
+            canPlay={isLocalPlayer}
             playCount={game.hands[player].length - 4}
             play={(cards) => layAwayCards(player, cards)}
-            visible={isLocalPayer}
+            visible={isLocalPlayer}
             playText="Lay Away Card(s)"
+            reorder={reorder}
         />
     }
     const topPlayer = (localPlayer + 1) % 2;
@@ -45,5 +47,6 @@ LayAway.propTypes = {
     layAwayCards: PropTypes.func,
     startCut: PropTypes.func,
     localPlayer: PropTypes.number,
-    players: PropTypes.arrayOf(PropTypes.object)
+    players: PropTypes.arrayOf(PropTypes.object),
+    reorderHand: PropTypes.func,
 }
