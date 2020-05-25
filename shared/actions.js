@@ -10,6 +10,7 @@ import {
     showCrib,
     startLayAway,
     nextHand,
+    reorderCards,
 } from './game.js';
 
 export const CUT_DECK = 'CUT_DECK';
@@ -26,6 +27,7 @@ export const ACTION_TYPE = {
     PLAY_CARD: 'PLAY_CARD',
     SHOW_CRIB: 'SHOW_CRIB',
     NEXT_HAND: 'NEXT_HAND',
+    REORDER_CARDS: 'REORDER_CARDS',
 };
 
 export function markPlayerReadyAction(player, playerName) {
@@ -72,6 +74,16 @@ export function nextHandAction() {
     return { type: ACTION_TYPE.NEXT_HAND };
 }
 
+export function reorderCardsAction({which, player, from, to}) {
+    return {
+        type: ACTION_TYPE.REORDER_CARDS,
+        which,
+        player,
+        from,
+        to,
+    }
+}
+
 export function processAction(game, prng, action) {
     switch (action.type) {
         case ACTION_TYPE.MARK_PLAYER_READY:
@@ -96,6 +108,14 @@ export function processAction(game, prng, action) {
             return showCrib(game);
         case ACTION_TYPE.NEXT_HAND:
             return nextHand(game, prng);
+        case ACTION_TYPE.REORDER_CARDS:
+            return reorderCards({
+                game: game,
+                which: action.which,
+                player: action.player,
+                from: action.from,
+                to: action.to,
+            });
         default:
             throw new Error("Bad action type!");
     }

@@ -1,12 +1,12 @@
 import React from 'react';
-import { CuttableDeck, Card } from './Cards.jsx';
+import { Hand, Card } from './Cards.jsx';
 import PropTypes from 'prop-types';
 
 export function CutForDeal({cuttingState, cutForDeal, resetCutting, startLayAway, localPlayer, players}) {
 
     const allDone = cuttingState.cutCards[1] != null;
     const activePlayer = cuttingState.cutCards[0] == null ? 0 : 1;
-    const deck = allDone ? null : <CuttableDeck cards={cuttingState.deck} cutForDeal={cutForDeal} disabled={localPlayer != activePlayer} />;
+    const deck = allDone ? null : <Hand narrow cards={cuttingState.deck} play={cutForDeal} playText="Cut Deck" canPlay playCount={localPlayer == activePlayer ? 1 : 0} />;
 
     function renderStatus() {
         if (allDone) {

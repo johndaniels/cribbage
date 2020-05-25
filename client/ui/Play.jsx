@@ -1,14 +1,16 @@
 import React from 'react';
-import { PlayableHand, DisplayHand, Card } from './Cards.jsx';
+import { Card, Hand } from './Cards.jsx';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-function getHand(cards, isActive, isVisible, playCard) {
-    if (isActive && isVisible) {
-        return <PlayableHand cards={cards} playCount={1} play={(cards) => playCard(cards[0])}/>
-    } else {
-        return <DisplayHand cards={cards} visible={isVisible} />
-    }
+function getHand(cards, isCurrent, isLocal, playCard) {
+    return <Hand
+        cards={cards}
+        playCount={isCurrent && isLocal ? 1 : 0}
+        visible={isLocal}
+        canPlay={isLocal}
+        play={(cards) => playCard(cards[0])}
+        />
 }
 
 const PlayContainer = styled.div`
@@ -28,8 +30,8 @@ export function Play({game, playCard, showCrib, nextHand, localPlayer, players})
     const topPlayer = (localPlayer + 1) % 2;
     const bottomPlayer = localPlayer;
 
-    const topPlayerHand = getHand(game.hands[topPlayer], game.currentPlayer == topPlayer && localPlayer == topPlayer, localPlayer == topPlayer, playCard);
-    const bottomPlayerHand = getHand(game.hands[bottomPlayer], game.currentPlayer == bottomPlayer && localPlayer == bottomPlayer, localPlayer == bottomPlayer, playCard);
+    const topPlayerHand = getHand(game.hands[topPlayer], game.currentPlayer == topPlayer, localPlayer == topPlayer, playCard);
+    const bottomPlayerHand = getHand(game.hands[bottomPlayer], game.currentPlayer == bottomPlayer, localPlayer == bottomPlayer, playCard);
     let moveForwardButton;
     if (!game.cribVisible) {
         moveForwardButton = <button disabled={!canMoveForward} onClick={showCrib}>Show Crib</button>;
@@ -49,10 +51,10 @@ export function Play({game, playCard, showCrib, nextHand, localPlayer, players})
         </HandsContainer>
         <PlayedContainer>
             <p>Played</p>
-            <DisplayHand cards={game.playedCards[topPlayer]} visible />
-            <DisplayHand cards={game.playedCards[bottomPlayer]} visible />
+            <Hand cards={game.playedCards[topPlayer]} visible />
+            <Hand cards={game.playedCards[bottomPlayer]} visible />
             <p>Crib</p>
-                <DisplayHand cards={game.cribCards} visible={game.cribVisible } />
+                <Hand cards={game.cribCards} visible={game.cribVisible } />
                 {moveForwardButton}
         </PlayedContainer>
         <div>

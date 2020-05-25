@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import PropTypes from 'prop-types';
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
 const CardDiv = styled.div`
     width: 100px;
@@ -27,59 +28,28 @@ Card.propTypes = {
     visible: PropTypes.bool,
 }
 
-const CuttableContainer = styled.div`
-    width: 30px;
-    cursor: pointer;
-    &:hover {
-        margin-top: ${props => props.disabled ? "0px": "-20px"};
-    }
+const CardContainer = styled.div`
+    width: ${props => props.narrow ? "30px" : "120px"};
+    ${props => props.playable && css`
+        cursor: pointer;
+        &:hover {
+            margin-top: -20px;
+        }
+        margin-top: ${props => props.selected ? "-40px" : "0px"};
+    `}
 `;
 
-const CuttableCards = styled.div`
-    display: flex; 
-    margin-top: 20px;
-`;
-
-export function CuttableDeck({cards, cutForDeal, disabled}) {
-    const cardDivs = cards.map((card, index) => {
-        const onClick = disabled ? null : () => cutForDeal(index);
-        return <CuttableContainer key={card.suit + card.value} disabled={disabled}>
-            <Card key={card.suit + card.value} card={card} onClick={onClick} visible={false}/>
-        </CuttableContainer>;
-    }).reverse();
-    return <CuttableCards>
-        {cardDivs}
-    </CuttableCards>;
-}
-
-
-CuttableDeck.propTypes = {
-    cards: PropTypes.array,
-    cutForDeal: PropTypes.func,
-    disabled: PropTypes.bool,
-}
-
-const PlayableContainer = styled.div`
-    width: 120px;
-    cursor: pointer;
-    margin-top: ${props => props.selected ? "-40px" : "0px"};
-
-    &:hover {
-        margin-top: -20px;
-    }
-`;
-
-const PlayableCards = styled.div`
+const CardList = styled.div`
     display: flex; 
     margin-top: 40px;
 `;
 
-export function PlayableHand({cards, play, playCount}) {
+export function Hand({cards, canPlay, playCount, playText, visible, narrow, play, reorder}) {
     const [selectedIndices, setSelectedIndices] = useState([]);
 
     const cardDivs = cards.map((card, index) => {
-
-        const onClick = () => {
+        // Only handle clicks if we are playable
+        const onClick = canPlay && playCount > 0 ? () => {
             const newSelectedIndices = selectedIndices.includes(index) ?
                 selectedIndices.filter(i => i != index) :
                 selectedIndices.concat([index]);
@@ -87,47 +57,26 @@ export function PlayableHand({cards, play, playCount}) {
                 return;
             }
             setSelectedIndices(newSelectedIndices);
-        }
-        return <PlayableContainer key={card.suit + card.value} selected={selectedIndices.includes(index)}>
-            <Card key={card.suit + card.value} card={card} onClick={onClick} visible={true}/>
-        </PlayableContainer>;
+        } : null;
+        return <CardContainer key={card.suit + card.value} playable={canPlay && playCount > 0} narrow={narrow} selected={selectedIndices.includes(index)}>
+            <Card key={card.suit + card.value} card={card} onClick={onClick} visible={visible}/>
+        </CardContainer>;
     });
     return <div>
-        <PlayableCards>
+        <CardList>
             {cardDivs}
-        </PlayableCards>
-        <button disabled={playCount <= 0 || selectedIndices.length != playCount} onClick={() => {setSelectedIndices([]); play(selectedIndices)}}>Play Card(s)</button>
+        </CardList>
+        {canPlay && <button disabled={playCount <= 0 || selectedIndices.length != playCount} onClick={() => {setSelectedIndices([]); play(selectedIndices)}}>{playText || "Play Card(s)"}</button>}
     </div>;
 }
 
-PlayableHand.propTypes = {
+Hand.propTypes = {
     cards: PropTypes.array,
     play: PropTypes.func,
     playCount: PropTypes.number,
-}
-
-const DisplayContainer = styled.div`
-    width: 120px;
-    cursor: pointer;
-`;
-
-const DisplayCards = styled.div`
-    display: flex; 
-`;
-
-export function DisplayHand({cards, visible}) {
-    const cardDivs = cards.map((card) => {
-
-        return <DisplayContainer key={card.suit + card.value} >
-            <Card key={card.suit + card.value} card={card} visible={visible} />
-        </DisplayContainer>;
-    });
-    return <DisplayCards>
-            {cardDivs}
-        </DisplayCards>;
-}
-
-DisplayHand.propTypes = {
-    cards: PropTypes.array,
+    reorder: PropTypes.func,
     visible: PropTypes.bool,
+    narrow: PropTypes.bool,
+    playText: PropTypes.string,
+    canPlay: PropTypes.bool, // Indicates whether the current user can _ever_ play from this hand (and thus should show a button)
 }

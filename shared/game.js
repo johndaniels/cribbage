@@ -1,5 +1,6 @@
 import { fullDeck, shuffleDeck } from './cards.js';
 import update from 'immutability-helper';
+import { arrayMove } from './arrayMove.js';
 
 export const PHASE = {
     LOBBY: 'LOBBY',
@@ -47,7 +48,39 @@ export function createGame(prng) {
         playedCards: [[], []],
         hands: [[], []],
         cribVisible: false,
+        cribCards: null,
     }
+}
+
+export const REORDER_WHICH = {
+    HAND: "HAND",
+    PLAYED: "PLAYED",
+    CRIB: "CRIB",
+}
+
+export function reorderCards({game, which, player, from, to}) {
+    const arrayUpdate = {
+        $apply: (value) => arrayMove(value, from, to)
+    }
+    const playerUpdateSpec = {};
+    playerUpdateSpec[player] = arrayUpdate;
+    let updateSpec;
+    if (which == REORDER_WHICH.HAND) {
+        updateSpec = {
+            hands: playerUpdateSpec
+        };
+    } else if (which == REORDER_WHICH.PLAYED) {
+        updateSpec = {
+            playedCards: playerUpdateSpec
+        }
+    } else if (which == REORDER_WHICH.CRIB) {
+        updateSpec = {
+            cribCards: arrayUpdate,
+        }
+    } else {
+        throw new Error("Invalid which for reorde")
+    }
+    return update(game, updateSpec);
 }
 
 export function markPlayerReady(game, player, playerName) {

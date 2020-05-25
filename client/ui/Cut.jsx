@@ -1,5 +1,5 @@
 import React from 'react';
-import { CuttableDeck, Card } from './Cards.jsx';
+import { Hand, Card } from './Cards.jsx';
 import PropTypes from 'prop-types';
 
 export function Cut({deck, cutCard, cutDeck, startPlay, dealer, localPlayer}) {
@@ -12,7 +12,7 @@ export function Cut({deck, cutCard, cutDeck, startPlay, dealer, localPlayer}) {
             <button onClick={() => startPlay()}>Start Play</button>
         </div>;
     } else {
-        deckOrCard = <CuttableDeck cards={deck} cutForDeal={cutDeck} disabled={dealer==localPlayer}/>;
+        deckOrCard = <Hand cards={deck} narrow play={cutDeck} playCount={1} playText={"Cut Deck"} canPlay={dealer!=localPlayer}/>;
     }
     return <div>
         {deckOrCard}

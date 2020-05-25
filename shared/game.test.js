@@ -1,6 +1,7 @@
-import { startLayAway, layAwayCards, nextHand, startCut, cutDeck, cutForDeal, createGame, showCrib, PHASE, startPlay, playCard} from './game';
+import { startLayAway, layAwayCards, nextHand, startCut, cutDeck, cutForDeal, createGame, showCrib, PHASE, startPlay, playCard, reorderCards, REORDER_WHICH} from './game';
 import { compareCards, fullDeck, shuffleDeck } from './cards';
 import seedrandom from 'seedrandom';
+import update from 'immutability-helper';
 
 test('Creating Game and cutting deck twice', () => {
     const prng = seedrandom("seed");
@@ -38,6 +39,7 @@ test('Creating Game and cutting deck twice', () => {
         playedCards: [[], []],
         hands: [[], []],
         cribVisible: false,
+        cribCards: null,
     }
     
     expect(game).toStrictEqual(expectedResult);
@@ -117,4 +119,41 @@ test('Starting Play and layaway', () => {
         playedCards: [[], []],
         cribVisible: false,
     });
+});
+
+test('Test reordering', () => {
+    let prng = seedrandom("seed");
+    let game = createGame(prng);
+    const deck = shuffleDeck(fullDeck(), prng);
+
+
+    prng = seedrandom("seed");
+    // Sort cards to make this deterministic
+    game = update(game, {
+        hands: {
+            $set: [
+                [deck[0], deck[1], deck[2], deck[3]],
+                [deck[4], deck[5], deck[6], deck[7]],
+            ]
+        }
+    });
+
+    expect(game.hands[0]).toStrictEqual([deck[0], deck[1], deck[2], deck[3]]);
+    game = reorderCards({
+        game: game,
+        which: REORDER_WHICH.HAND,
+        player: 0,
+        from: 3,
+        to: 0, 
+    })
+
+    expect(game.hands[0]).toStrictEqual([deck[3], deck[0], deck[1], deck[2]]);
+    game = reorderCards({
+        game: game,
+        which: REORDER_WHICH.HAND,
+        player: 0,
+        from: 1,
+        to: 3, 
+    })
+    expect(game.hands[0]).toStrictEqual([deck[3], deck[1], deck[2], deck[0]]);
 });
