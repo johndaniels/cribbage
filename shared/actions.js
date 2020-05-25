@@ -12,6 +12,7 @@ import {
     nextHand,
     reorderCards,
     pass,
+    createGame,
 } from './game.js';
 
 export const CUT_DECK = 'CUT_DECK';
@@ -29,7 +30,8 @@ export const ACTION_TYPE = {
     SHOW_CRIB: 'SHOW_CRIB',
     NEXT_HAND: 'NEXT_HAND',
     REORDER_CARDS: 'REORDER_CARDS',
-    PASS: 'PASS'
+    PASS: 'PASS',
+    RESET: 'RESET',
 };
 
 export function markPlayerReadyAction(player, playerName) {
@@ -92,6 +94,12 @@ export function passAction() {
     };
 }
 
+export function resetAction() {
+    return {
+        type: ACTION_TYPE.RESET,
+    };
+}
+
 export function processAction(game, prng, action) {
     switch (action.type) {
         case ACTION_TYPE.MARK_PLAYER_READY:
@@ -126,6 +134,8 @@ export function processAction(game, prng, action) {
             });
         case ACTION_TYPE.PASS:
             return pass(game);
+        case ACTION_TYPE.RESET:
+            return createGame(prng);
         default:
             throw new Error("Bad action type!");
     }

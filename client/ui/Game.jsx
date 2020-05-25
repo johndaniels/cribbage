@@ -13,7 +13,10 @@ import {
     nextHandAction,
     reorderCardsAction,
     passAction,
+    resetAction,
+    processAction,
 } from '../../shared/actions';
+import seedrandom from 'seedrandom';
 import { PHASE, REORDER_WHICH } from '../../shared/game';
 import { CutForDeal } from './CutForDeal.jsx';
 import { LayAway } from './LayAway.jsx';
@@ -119,6 +122,7 @@ export class Game extends React.Component {
         this.nextHand = this.bindAction(nextHandAction);
         this.reorderCards = this.bindAction(reorderCardsAction);
         this.pass = this.bindAction(passAction);
+        this.resetGame = this.bindAction(resetAction);
 
 
         // Binding methods in general
@@ -153,9 +157,12 @@ export class Game extends React.Component {
         });*/
         return (...args) => {
             this.props.stateManager.sendGameAction(action(...args));
-            /*this.setState({
-                game: processAction(this.state.game, action(...args)),
-            })*/
+            // Temporarily set the expected state. This will be overwritten by the statemanager when
+            // it gets the official sequence of events from the server.
+            const prng = new seedrandom(null, {state: this.props.stateManager.prng.state()});
+            this.setState({
+                game: processAction(this.state.game, prng, action(...args)),
+            })
         };
     }
 
@@ -248,6 +255,7 @@ export class Game extends React.Component {
         }
         return <div>
             <div>Phase: {this.state.game.phase}</div>
+            <button onClick={this.resetGame}>Reset Game</button>
             <div>Player1: {this.state.players[0].playerName}{renderDealer(0)}</div>
             <div>Player2: {this.state.players[1].playerName}{renderDealer(1)}</div>
             {this.renderGameBoard()}
